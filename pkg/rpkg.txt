@@ -1,0 +1,7 @@
+# javab package file
+# see https://github.com/syntelos/sh-javab
+Name: syntelos/rpkg/
+Sealed: true
+Implementation-Title: "Syntelos RPKG"
+Implementation-Version: "1.0.1"
+Implementation-Vendor: "John Pritchard, Syntelos"

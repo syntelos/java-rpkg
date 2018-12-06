@@ -1,0 +1,9 @@
+# 
+# Configuration parameters recognized by 'javab'.
+# See https://github.com/syntelos/sh-javab
+#
+name=syntelos-rpkg
+version=build.version.sh
+main-class=syntelos.rpkg.Main
+keystore=../.keystore.pkcs12
+keystore_alias=devkey
