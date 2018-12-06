@@ -43,6 +43,29 @@ import java.util.jar.Manifest;
 public final class Package
     extends Object
 {
+    /**
+     * @param out Target output
+     * 
+     * @return Wrote content to output.
+     */
+    public static boolean List(PrintStream out){
+        Package[] list = Package.getPackages();
+        if (null != list){
+            boolean once = true;
+            for (Package p : list){
+                if (once)
+                    once = false;
+                else
+                    out.println();
+
+                p.println(out);
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     private final static Map<String,Package> Store = new java.util.HashMap();
 
@@ -184,6 +207,21 @@ public final class Package
     }
     private final static int HASHKEY = Package.class.hashCode();
 
+    private final static String Name2Java(String name){
+        if (name.endsWith("/"))
+            return name.replace('/','.').substring(0,name.length()-1);
+        else {
+            return name;
+        }
+    }
+    private final static String Name2Zip(String name){
+        if (name.endsWith("/"))
+            return name;
+        else {
+            return name.replace('.','/').concat("/");
+        }
+    }
+
     /**
      * If a package is sealed, the reference and loader fields will be
      * defined with the values passed to the constructor.  Otherwise
@@ -191,6 +229,7 @@ public final class Package
      */
     public final boolean sealed;
     public final String name;
+    public final String entry;
     public final String specTitle;
     public final String specVersion;
     public final String specVendor;
@@ -226,7 +265,8 @@ public final class Package
                 this.reference = null;
                 this.loader = null;
             }
-            this.name = name;
+            this.name = Name2Java(name);
+            this.entry = name;
             this.specTitle = specTitle;
             this.specVersion = specVersion;
             this.specVendor = specVendor;
@@ -285,7 +325,7 @@ public final class Package
      * Write package information in manifest format.
      */
     public void println(PrintStream out){
-        out.printf("Name: %s%n",this.name);
+        out.printf("Name: %s%n",this.entry);
 
         if (this.sealed)
             out.println("Sealed: true");
