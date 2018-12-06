@@ -155,7 +155,10 @@ public final class Package
 
                     Package p = new Package(tail,src,man,name,attr);
 
-                    Package.Store.put(p.name,p);
+                    if (p.sealed){
+
+                        Package.Store.put(p.name,p);
+                    }
                 }
             }
         }
