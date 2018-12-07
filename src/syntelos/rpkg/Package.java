@@ -34,7 +34,14 @@ import java.util.jar.Manifest;
 
 /**
  * Java package manager stores sealed packages found in the class
- * loader chain.
+ * loader chain.  Each package has a single, unique java object.
+ * 
+ * <pre>
+ * boolean isPackage(Package that){
+ * 
+ *     return (that == Package.getPackage(this.class))
+ * }
+ * </pre>
  * 
  * @see #Init
  * 
