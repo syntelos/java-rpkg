@@ -1,5 +1,5 @@
 /*
- * Syntelos ENA
+ * Syntelos RPKG
  * Copyright (C) 2018, John Pritchard, Syntelos
  * 
  * This program is free software: you can redistribute it and/or modify
