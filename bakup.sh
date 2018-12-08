@@ -1,6 +1,7 @@
 #!/bin/bash
 
-name=$(basename $(pwd))
+source=$(pwd)
+name=$(basename ${source})
 
 archive=~/src/syntelos/archive/phone/dbnbooks
 
@@ -11,7 +12,7 @@ then
 	echo OK
 	exit 0
 
-    elif cd ${archive} && ./bakup.sh ${name}
+    elif cd ${archive} && ./bakup.sh ${source}
     then
 	exit 0
     else
