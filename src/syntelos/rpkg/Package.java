@@ -76,6 +76,8 @@ public final class Package
 
     private final static Map<String,Package> Store = new java.util.HashMap();
 
+    private static ClassLoader InitClassLoader = null;
+
     /**
      * The required initialization needs to be called on the tail of
      * the class loader chain.  Typically, the "main" class is loaded
@@ -90,6 +92,8 @@ public final class Package
      * the class loader chain.  
      */
     public static void Init(ClassLoader tail){
+
+        InitClassLoader = UniqueClassLoader(InitClassLoader,tail);
 
         while (null != tail){
             if (tail instanceof URLClassLoader){
@@ -121,7 +125,22 @@ public final class Package
             tail = tail.getParent();
         }
     }
+    /**
+     * Open an archive manifest given an archive reference.
+     * 
+     * @param tail A class loader chain terminal
+     * 
+     * @param src A jar file archive reference
+     * 
+     * @throws java.lang.IllegalStateException Reference argument
+     * 'src' is not a pointer to a jar file archive.
+     */
     private static void Init(ClassLoader tail, URL src){
+        /*
+         * REVIEW
+         * 
+         * Derive a manifest object model from an archive reference.
+         */
         try {
             URLConnection con = src.openConnection();
             InputStream in = con.getInputStream();
@@ -152,8 +171,21 @@ public final class Package
             throw new IllegalStateException(src.toString(),x);
         }
     }
+    /**
+     * Store package information found in an archive manifest.
+     * 
+     * @param tail Class loader chain terminal
+     * @param src Archive manifest reference
+     * @param man Archive manifest object model
+     */
     private static void Init(ClassLoader tail, URL src, Manifest man){
         if (null != tail && null != src && null != man){
+            /*
+             * REVIEW
+             * 
+             * Read the archive manifest object model into the package
+             * store.
+             */
             Map<String,Attributes> map = man.getEntries();
             for (Map.Entry<String,Attributes> ent : map.entrySet()){
                 String name = ent.getKey();
@@ -172,6 +204,75 @@ public final class Package
         else {
             throw new IllegalArgumentException();
         }
+    }
+    /**
+     * Exports the init class loader as the terminal of the
+     * application class loader chain.
+     * 
+     * @return The init class loader, or a derivative representing the
+     * init class loader chain.
+     * 
+     * @throws java.lang.IllegalStateException When not initialized
+     * and unable to return the init class loader
+     */
+    public final static ClassLoader InitClassLoader(){
+        if (null != InitClassLoader)
+            return InitClassLoader;
+        else
+            throw new IllegalStateException("Not initialized");
+    }
+    private final static ClassLoader UniqueClassLoader(ClassLoader a, ClassLoader b){
+        if (null == a)
+            return b;
+        else if (null == b)
+            return a;
+        else if (a instanceof ChainClassLoaderLink){
+            ChainClassLoaderLink c = (ChainClassLoaderLink)a;
+
+            if (IsChild(b,c.parent) && IsChild(b,c.child)){
+                /*
+                 * Accept join
+                 */
+                return b;
+            }
+            else if (IsChild(c.parent,b) || IsChild(c.child,b)){
+                /*
+                 * Prune call
+                 */
+                return c;
+            }
+            else {
+                /*
+                 * Create join
+                 */
+                return new ChainClassLoaderLink(a,b);
+            }
+        }
+        else if (IsChild(a,b))
+            return a;
+        else if (IsChild(b,a))
+            return b;
+        else
+            return new ChainClassLoaderLink(a,b);
+    }
+    /**
+     * The "child" relation reflects the class loader chain "parent"
+     * relation.  It affirms a chain leaf or terminal.
+     * 
+     * @param c Is child of
+     * @param p Is parent of
+     * 
+     * @return Relationship validity
+     */
+    private final static boolean IsChild(ClassLoader c, ClassLoader p){
+        while (null != p){
+            if (p == c.getParent())
+                return true;
+            else {
+                p = p.getParent();
+            }
+        }
+        return false;
     }
 
     private final static Package[] PARY = new Package[0];

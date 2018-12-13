@@ -110,3 +110,18 @@ JAR manifest
 Each package available to the RPKG package subsystem has a JAR
 manifest entry that is sealed.
 
+
+Update
+
+
+2018/12 -- 1.0.1
+
+ [DONE] Export package list from user class loader.
+
+
+2018/12 -- 1.0.2
+
+ [DONE] Export package init class loader.
+ 
+ [TODO] Review package init, which presumes jar files.
+

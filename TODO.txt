@@ -1,0 +1,5 @@
+                           --*-mode:outline-*-
+
+* [REVIEW] Package Init
+** The implementation technique examines JAR files, exclusively
+
