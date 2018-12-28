@@ -24,6 +24,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -95,80 +96,56 @@ public final class Package
 
         InitClassLoader = UniqueClassLoader(InitClassLoader,tail);
 
-        while (null != tail){
-            if (tail instanceof URLClassLoader){
-                /*
-                 * REVIEW
-                 * 
-                 * Required technique for a URLClassLoader.
-                 */
-                URLClassLoader ucl = (URLClassLoader)tail;
-                URL[] ucp = ucl.getURLs();
-                for (URL src : ucp){
+        try {
+            Enumeration<URL> enu = tail.getResources("META-INF/MANIFEST.MF");
 
-                    Init(tail,src);
-                }
+            while (enu.hasMoreElements()){
+
+                URL src = enu.nextElement();
+
+                InitMF(tail,src);
             }
-            else {
-                /*
-                 * REVIEW
-                 * 
-                 * The generic technique fails with a URLClassLoader.
-                 */
-                URL src = tail.getResource("META-INF/MANIFEST.MF");
-                if (null != src){
-
-                    Init(tail,src);
-                }
-            }
-
-            tail = tail.getParent();
+        }
+        catch (IOException iox){
+            iox.printStackTrace();
         }
     }
     /**
-     * Open an archive manifest given an archive reference.
+     * Open a manifest given a manifest reference.
      * 
      * @param tail A class loader chain terminal
      * 
-     * @param src A jar file archive reference
+     * @param src An archive manifest reference
      * 
      * @throws java.lang.IllegalStateException Reference argument
-     * 'src' is not a pointer to a jar file archive.
+     * 'src' is not a pointer to an archive manifest.
      */
-    private static void Init(ClassLoader tail, URL src){
+    private static void InitMF(ClassLoader tail, URL src)
+        throws IOException
+    {
         /*
-         * REVIEW
-         * 
-         * Derive a manifest object model from an archive reference.
+         * Derive a manifest object model from a manifest reference.
          */
+        URLConnection con = src.openConnection();
+        InputStream in = con.getInputStream();
         try {
-            URLConnection con = src.openConnection();
-            InputStream in = con.getInputStream();
-            try {
-                if (con instanceof JarURLConnection){
-                    JarURLConnection jcon = (JarURLConnection)con;
-                    JarFile jfi = jcon.getJarFile();
-                    Manifest man = jfi.getManifest();
-                    if (null != man){
+            if (con instanceof JarURLConnection){
+                JarURLConnection jcon = (JarURLConnection)con;
+                JarFile jfi = jcon.getJarFile();
+                Manifest man = jfi.getManifest();
+                if (null != man){
 
-                        Init(tail,src,man);
-                    }
-                }
-                else {
-                    JarInputStream jin = new JarInputStream(in);
-                    Manifest man = jin.getManifest();
-                    if (null != man){
-
-                        Init(tail,src,man);
-                    }
+                    InitMF(tail,src,man);
                 }
             }
-            finally {
-                in.close();
+            else {
+                Manifest man = new Manifest(in);
+
+                InitMF(tail,src,man);
             }
         }
-        catch (Exception x){
-            throw new IllegalStateException(src.toString(),x);
+        finally {
+            in.close();
         }
     }
     /**
@@ -178,11 +155,9 @@ public final class Package
      * @param src Archive manifest reference
      * @param man Archive manifest object model
      */
-    private static void Init(ClassLoader tail, URL src, Manifest man){
+    private static void InitMF(ClassLoader tail, URL src, Manifest man){
         if (null != tail && null != src && null != man){
             /*
-             * REVIEW
-             * 
              * Read the archive manifest object model into the package
              * store.
              */

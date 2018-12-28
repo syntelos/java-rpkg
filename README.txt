@@ -104,7 +104,7 @@ JAR manifest
   Name: syntelos/rpkg/
   Sealed: true
   Implementation-Title: "syntelos.rpkg"
-  Implementation-Version: "1.0.1"
+  Implementation-Version: "1.0.3"
   Implementation-Vendor: "John Pritchard, Syntelos"
 
 Each package available to the RPKG package subsystem has a JAR
@@ -124,4 +124,9 @@ Update
  [DONE] Export package init class loader.
  
  [TODO] Review package init, which presumes jar files.
+
+
+2018/12 -- 1.0.3
+
+ [DONE] Read archive manifest from manifest reference.
 
