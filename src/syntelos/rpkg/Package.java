@@ -27,6 +27,7 @@ import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.JarFile;
@@ -307,6 +308,16 @@ public final class Package
             return name.replace('.','/').concat("/");
         }
     }
+    private final static String[] Namelist(String jpname){
+        StringTokenizer strtok = new StringTokenizer(jpname,".$");
+        int count = strtok.countTokens();
+        String[] list = new String[count];
+        for (int cc = 0; cc < count; cc++){
+
+            list[cc] = strtok.nextToken();
+        }
+        return list;
+    }
 
     /**
      * If a package is sealed, the reference and loader fields will be
@@ -325,6 +336,9 @@ public final class Package
     public final URL reference;
     public final ClassLoader loader;
     public final int hashCode;
+
+    private final String[] namelist;
+    private final int namelist_count;
 
     /**
      * Constructor called from {@link Package#Init}.
@@ -361,6 +375,9 @@ public final class Package
             this.implVendor = implVendor;
 
             this.hashCode = (name.hashCode() ^ HASHKEY);
+
+            this.namelist = Namelist(this.name);
+            this.namelist_count = this.namelist.length;
         }
         else {
             throw new IllegalArgumentException();
@@ -394,6 +411,26 @@ public final class Package
     }
     public boolean isSealed() {
         return this.sealed;
+    }
+    public int namelistCount(){
+
+        return this.namelist_count;
+    }
+    public String namelistHead(){
+
+        return this.namelist[0];
+    }
+    public String namelistGet(int ix){
+
+        return this.namelist[ix];
+    }
+    public String namelistTail(){
+
+        return this.namelist[this.namelist_count-1];
+    }
+    public String[] namelist(){
+
+        return this.namelist.clone();
     }
     public int hashCode(){
 
